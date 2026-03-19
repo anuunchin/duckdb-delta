@@ -41,7 +41,7 @@ if(APPLE)
       "-framework Corefoundation -framework SystemConfiguration -framework Security"
   )
 elseif(UNIX)
-  set(PLATFORM_LIBS m c resolv)
+  set(PLATFORM_LIBS m c resolv ssl crypto)
 elseif(WIN32)
   set(PLATFORM_LIBS
       ntdll
