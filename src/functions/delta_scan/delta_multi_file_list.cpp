@@ -245,6 +245,12 @@ static ffi::EngineBuilder *CreateBuilder(ClientContext &context, const string &p
 		}
 		ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_region"), KernelUtils::ToDeltaString(region));
 
+		// Auto-detect S3 Express One Zone directory buckets from bucket name
+		if (bucket.find("--x-s3") != string::npos || bucket.find("--xa-s3") != string::npos) {
+			ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_s3_express"),
+			                        KernelUtils::ToDeltaString("true"));
+		}
+
 	} else if (secret_type == "azure") {
 		// azure seems to be super complicated as we need to cover duckdb azure plugin and delta RS builder
 		// and both require different settings
