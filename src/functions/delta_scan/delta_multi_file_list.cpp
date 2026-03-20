@@ -218,7 +218,14 @@ static ffi::EngineBuilder *CreateBuilder(ClientContext &context, const string &p
 			ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_session_token"),
 			                        KernelUtils::ToDeltaString(session_token));
 		}
-		if (!endpoint.empty() && endpoint != "s3.amazonaws.com") {
+		// Auto-detect S3 Express One Zone directory buckets from bucket name
+		bool is_s3_express = (bucket.find("--x-s3") != string::npos || bucket.find("--xa-s3") != string::npos);
+
+		if (is_s3_express) {
+			// Let object_store auto-resolve the Express endpoint; don't pass a custom endpoint
+			ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_s3_express"),
+			                        KernelUtils::ToDeltaString("true"));
+		} else if (!endpoint.empty() && endpoint != "s3.amazonaws.com") {
 			if (!StringUtil::StartsWith(endpoint, "https://") && !StringUtil::StartsWith(endpoint, "http://")) {
 				if (use_ssl) {
 					endpoint = "https://" + endpoint;
@@ -244,12 +251,6 @@ static ffi::EngineBuilder *CreateBuilder(ClientContext &context, const string &p
 			}
 		}
 		ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_region"), KernelUtils::ToDeltaString(region));
-
-		// Auto-detect S3 Express One Zone directory buckets from bucket name
-		if (bucket.find("--x-s3") != string::npos || bucket.find("--xa-s3") != string::npos) {
-			ffi::set_builder_option(builder, KernelUtils::ToDeltaString("aws_s3_express"),
-			                        KernelUtils::ToDeltaString("true"));
-		}
 
 	} else if (secret_type == "azure") {
 		// azure seems to be super complicated as we need to cover duckdb azure plugin and delta RS builder
