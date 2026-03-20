@@ -44,7 +44,7 @@ if(APPLE)
       "-framework Corefoundation -framework SystemConfiguration -framework Security"
   )
 elseif(UNIX)
-  set(PLATFORM_LIBS m c resolv)
+  set(PLATFORM_LIBS m c resolv ssl crypto)
 elseif(WIN32)
   set(PLATFORM_LIBS
       ntdll
@@ -78,12 +78,7 @@ if("${OS_NAME}" STREQUAL "linux")
     set(RUST_PLATFORM_TARGET "x86_64-unknown-linux-gnu")
   endif()
 
-  # Point Rust openssl-sys at vcpkg OpenSSL and force static linking
-  set(RUST_ENV_VARS
-      ${RUST_ENV_VARS}
-      OPENSSL_STATIC=1
-      OPENSSL_LIB_DIR=${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib
-      OPENSSL_INCLUDE_DIR=${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/include)
+  # Rust openssl-sys will find system OpenSSL via pkg-config
 elseif("${OS_NAME}" STREQUAL "osx")
   if("${OSX_BUILD_ARCH}" STREQUAL "arm64")
     set(RUST_PLATFORM_TARGET "aarch64-apple-darwin")
